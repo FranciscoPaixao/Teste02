@@ -2,22 +2,25 @@
 function AdicionarEquipamento()
 {
     global $db;
-    echo "Cadastro de Equipamento:\n";
+    echo "Cadastro de Equipamento: \n";
     do {
-        echo "  Informe o nome do equipamento:\n";
-        $nome = readline();
+
+        $nome = readline("  Informe o nome do equipamento: \n");
         if (strlen($nome) < 6) {
             echo "\e[91m    O nome do equipamento deve ter no mínimo 6 caracteres!\033[0m\n";
         }
     } while ((strlen($nome) > 5) != true);
-    echo "  Informe o preço de aquisição do equipamento (somente números):\n";
-    $precoAquisicao = readline();
-    echo "  Informe o número de serie do equipamento:\n";
-    $numeroSerie = readline();
-    echo "  Informe a data de fabricação do equipamento (dd/mm/aaaa):\n";
-    $dataFabricacao = readline();
-    echo "  Informe o nome do fabricante do equipamento:\n";
-    $fabricante = readline();
+    $precoAquisicao = readline("  Informe o preço de aquisição do equipamento (somente números): \n");
+    $numeroSerie = readline("  Informe o número de serie do equipamento: \n");
+    $dataFabricacao = readline("  Informe a data de fabricação do equipamento (dd/mm/aaaa): \n");
+    $fabricante = readline("  Informe o nome do fabricante do equipamento: \n");
+
+    if (empty($nome) || empty($precoAquisicao) || empty($numeroSerie) || empty($dataFabricacao) || empty($fabricante)) {
+        echo "\e[H\e[J";
+        echo "\e[91mTodos os campos são obrigatórios!\033[0m\n";
+        echo "Voltando ao Menu de Equipamentos...\n";
+        return;
+    }
 
     $precoAquisicao = str_replace(",", ".", $precoAquisicao) * 100;
     $dataFabricacao = date('U', strtotime($dataFabricacao));
@@ -35,16 +38,15 @@ function AdicionarEquipamento()
     echo "\e[92mEquipamento cadastrado com sucesso!\033[0m\n";
     echo "----------------------------------------\n";
 }
-function ListarEquipamentos()
+function ListarEquipamentos(&$statusLista = false)
 {
     global $db;
-    $status = false;
     $equipamentos = $db->query("SELECT * FROM Equipamentos")->fetchAll(PDO::FETCH_ASSOC);
     if ($equipamentos) {
-        $status = 1;
-        echo "Lista de Equipamentos:\n";
+        $statusLista = true;
+        echo "Lista de Equipamentos: \n";
         foreach ($equipamentos as $equipamento) {
-            echo "  ID: " . $equipamento['idEquipamentos'] . PHP_EOL;
+            echo "  ID do Equipamento: " . $equipamento['idEquipamentos'] . PHP_EOL;
             echo "  Nome: " . $equipamento['nome'] . PHP_EOL;
             echo "  Fabricante: " . $equipamento['fabricante'] . PHP_EOL;
             $preco = str_replace('.', ',', $equipamento['preco_aquisicao'] / 100);
@@ -57,54 +59,50 @@ function ListarEquipamentos()
     } else {
         echo "\e[91mNão há equipamentos cadastrados no banco de dados!\033[0m\n";
     }
-    return $status;
 }
 function EditarEquipamento()
 {
     global $db;
-    $status = ListarEquipamentos();
-    if ($status) {
+    echo "\e[H\e[J";
+    ListarEquipamentos($statusLista);
+    if ($statusLista) {
         echo "-- Editando Equipamento -- \n";
-        echo "\033[0;33mDICA: Deixe o campo em branco para manter o valor atual.\033[0m\n";
-        echo "Informe o ID do equipamento que deseja editar:";
-        do{
-            $id = readline();
-            if(!is_numeric($id)){
+        echo "\033[0;33mDICA: Deixe o campo em branco caso não deseje alterar o valor atual.\033[0m\n";
+
+        do {
+            $id = readline("Informe o ID do equipamento que deseja editar: \n");
+            if (!is_numeric($id)) {
                 echo "\e[91m O ID precisa ser númerico!\033[0m\n";
             }
-        }while(!is_numeric($id));
+        } while (!is_numeric($id));
 
         $equipamento = $db->query("SELECT * FROM Equipamentos WHERE idEquipamentos = $id")->fetch(PDO::FETCH_ASSOC);
         if ($equipamento) {
             do {
-                echo "Informe o nome do equipamento:\n";
-                $nome = readline();
+
+                $nome = readline("Informe o nome do equipamento: \n");
                 if (strlen($nome) < 6 && !empty($nome)) {
                     echo "\e[91mO nome do equipamento deve ter no mínimo 6 caracteres!\033[0m\n";
                 }
             } while ((strlen($nome) > 5) != true || empty($nome));
-            
-            echo "Informe o preco de aquisicao do equipamento (somente numeros):\n";
-            $precoAquisicao = readline();
-            if(empty($precoAquisicao)){
+
+            $precoAquisicao = readline("Informe o preco de aquisicao do equipamento (somente numeros): \n");
+            if (empty($precoAquisicao)) {
                 $precoAquisicao = $equipamento['preco_aquisicao'];
             }
 
-            echo "Informe o numero de serie do equipamento:\n";
-            $numeroSerie = readline();
-            if(empty($numeroSerie)){
+            $numeroSerie = readline("Informe o numero de serie do equipamento: \n");
+            if (empty($numeroSerie)) {
                 $numeroSerie = $equipamento['numero_serie'];
             }
 
-            echo "Informe a data de fabricação do equipamento (dd/mm/aaaa):\n";
-            $dataFabricacao = readline();
-            if(empty($dataFabricacao)){
+            $dataFabricacao = readline("Informe a data de fabricação do equipamento (dd/mm/aaaa): \n");
+            if (empty($dataFabricacao)) {
                 $dataFabricacao = $equipamento['data_fabricacao'];
             }
 
-            echo "Informe o nome do fabricante do equipamento:\n";
-            $fabricante = readline();
-            if(empty($fabricante)){
+            $fabricante = readline("Informe o nome do fabricante do equipamento: \n");
+            if (empty($fabricante)) {
                 $fabricante = $equipamento['fabricante'];
             }
 
@@ -133,16 +131,16 @@ function EditarEquipamento()
 function ExcluirEquipamento()
 {
     global $db;
-    $status = ListarEquipamentos();
-    if ($status) {
+    ListarEquipamentos($statusLista);
+    if ($statusLista) {
         echo "-- Exclusão de Equipamento -- \n";
         echo "Informe o ID do equipamento que deseja excluir:";
-        do{
+        do {
             $id = readline();
-            if(!is_numeric($id)){
+            if (!is_numeric($id)) {
                 echo "\e[91m O ID precisa ser númerico!\033[0m\n";
             }
-        }while(!is_numeric($id));
+        } while (!is_numeric($id));
         $equipamento = $db->query("SELECT * FROM Equipamentos WHERE idEquipamentos = $id")->fetch(PDO::FETCH_ASSOC);
         if ($equipamento) {
             $consultarDb = $db->prepare("DELETE FROM Equipamentos WHERE idEquipamentos = :id");

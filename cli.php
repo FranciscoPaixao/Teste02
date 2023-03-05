@@ -4,6 +4,7 @@ include 'chamados.php';
 
 $db = new PDO('sqlite:' . dirname(__FILE__) . '/sistema.db');
 MenuPrincipal();
+//ListarEquipamentos($statusLista);
 //echo "\e[91m Texto Vermelho \033[0m\n";\
 //echo "\e[92m Texto Verde \033[0m\n";
 function MenuPrincipal()
@@ -12,9 +13,8 @@ function MenuPrincipal()
     echo "  1 - Gerenciar Equipamentos\n";
     echo "  2 - Gerenciar Chamados\n";
     echo "  3 - Fechar Programa\n";
-    echo "Opção: ";
     do {
-        $opcao = readline();
+        $opcao = readline("Opção: \n");
         switch ($opcao) {
             case 1:
                 MenuEquipamentos();
@@ -29,7 +29,6 @@ function MenuPrincipal()
                 break;
             default:
                 echo "\e[91mInforme uma opção válida!\033[0m\n";
-                echo "Opção: ";
                 break;
         }
     } while (($opcao > 0 && $opcao < 4) != true);
@@ -42,10 +41,9 @@ function MenuEquipamentos()
     echo "  3 - Editar Equipamento\n";
     echo "  4 - Excluir Equipamento\n";
     echo "  5 - Voltar pro Menu Principal\n";
-    echo "Opção: \n";
 
     do {
-        $opcao = readline();
+        $opcao = readline("Opção: \n");
 
         switch ($opcao) {
             case 1:
@@ -69,8 +67,7 @@ function MenuEquipamentos()
                 MenuPrincipal();
                 break;
             default:
-                echo "\e[91mInforme uma opção válida!\033[0m\n";
-                echo "Opção: ";
+                echo "\e[91mInforme uma das opções válidas!\033[0m\n";
                 break;
         }
     } while (($opcao > 0 && $opcao < 6) != true);
@@ -86,10 +83,9 @@ function MenuChamados()
     echo "  3 - Editar Chamado\n";
     echo "  4 - Excluir Chamado\n";
     echo "  5 - Voltar pro Menu Principal\n";
-    echo "Opção:\n";
 
     do {
-        $opcao = readline();
+        $opcao = readline("Opção: \n");
 
         switch ($opcao) {
             case 1:
@@ -113,10 +109,9 @@ function MenuChamados()
                 MenuPrincipal();
                 break;
             default:
-                echo "Opção Inválida";
-                echo "Informe uma opção válida!";
+                echo "\e[91mInforme uma das opções válidas!\033[0m\n";
                 break;
         }
-    } while ($opcao > 0 && $opcao < 6);
+    } while (($opcao > 0 && $opcao < 6) != true);
     MenuChamados();
 }

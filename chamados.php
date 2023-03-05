@@ -4,15 +4,23 @@ function AbrirChamado()
     global $db;
 
     echo "-- Abertura de Chamado -- \n";
-    echo "  Informe o titulo do chamado:\n";
-    $titulo = readline();
-    echo "  Informe a descrição do chamado:\n";
-    $descricao = readline();
-    echo "  Informe a data de abertura do chamado (dd/mm/aaaa):\n";
-    $data_abertura = readline();
+    $titulo = readline("  Informe o titulo do chamado: \n");
+    $descricao = readline("  Informe a descrição do chamado: \n");
+    $data_abertura = readline("  Informe a data de abertura do chamado (dd/mm/aaaa): \n");
     ListarEquipamentos();
-    echo "  Informe o ID do equipamento a ser anexado ao chamado (lista de equipamentos acima):\n";
-    $idEquipamento = readline();
+    do {
+        $idEquipamento = readline("  Informe o ID do equipamento a ser anexado ao chamado (lista de equipamentos acima): \n");
+        if (!is_numeric($idEquipamento)) {
+            echo "\e[91m O ID do equipamento deve ser um número inteiro positivo!\033[0m\n";
+        }
+    } while (!is_numeric($idEquipamento));
+
+    if (empty($titulo) || empty($descricao) || empty($data_abertura) || empty($idEquipamento)) {
+        echo "\e[H\e[J";
+        echo "\e[91mTodos os campos são obrigatórios!\033[0m\n";
+        echo "Voltando ao Menu de Chamados...\n";
+        return;
+    }
 
     $equipamento = $db->query("SELECT * FROM Equipamentos WHERE idEquipamentos = $idEquipamento")->fetch(PDO::FETCH_ASSOC);
     if ($equipamento) {
@@ -30,13 +38,12 @@ function AbrirChamado()
         echo "\e[91mEquipamento não encontrado!\033[0m\n";
     }
 }
-function ListarChamados()
+function ListarChamados(&$statusLista = false)
 {
     global $db;
-    $status = false;
     $chamados = $db->query("SELECT * FROM Chamados")->fetchAll(PDO::FETCH_ASSOC);
     if ($chamados) {
-        $status = true;
+        $statusLista = true;
         echo "-- Lista de Chamados --\n";
         foreach ($chamados as $chamado) {
             echo "  ID do Chamado: " . $chamado['idChamados'] . PHP_EOL;
@@ -54,55 +61,51 @@ function ListarChamados()
             echo "  Data de Abertura: " . $data . PHP_EOL;
             $diferenca = time() - $chamado['data_abertura'];
             $dias = floor($diferenca / 86400);
-            echo "  Dias aberto: " . $dias." dias\n";
+            echo "  Dias aberto: " . $dias . " dias\n";
             echo "----------------------------------------\n";
         }
     } else {
         echo "\e[91m Nenhum chamado encontrado no banco de dados!\e[0m\n";
     }
-    return $status;
 }
 function EditarChamado()
 {
     global $db;
-    $status = ListarChamados();
-    if ($status) {
+    echo "\e[H\e[J";
+    ListarChamados($statusLista);
+    if ($statusLista) {
         echo "-- Edição de Chamado -- \n";
-        echo "DICA: Deixe o campo em branco caso não deseje alterar o valor atual.\n";
-        echo "Informe o ID do chamado que deseja editar:\n";
-        do{
-            $id = readline();
-            if(!is_numeric($id)){
+        echo "\033[0;33mDICA: Deixe o campo em branco caso não deseje alterar o valor atual.\033[0m\n";
+
+        do {
+            $id = readline("Informe o ID do chamado que deseja editar: \n");
+            if (!is_numeric($id)) {
                 echo "\e[91m O ID precisa ser númerico!\033[0m\n";
             }
-        }while(!is_numeric($id));
+        } while (!is_numeric($id));
 
         $chamado = $db->query("SELECT * FROM Chamados WHERE idChamados = $id")->fetch(PDO::FETCH_ASSOC);
         if ($chamado) {
 
-            echo "Informe o titulo do chamado:\n";
-            $titulo = readline();
-            if(empty($titulo)){
+            $titulo = readline("Informe o titulo do chamado: \n");
+            if (empty($titulo)) {
                 $titulo = $chamado['titulo'];
             }
 
-            echo "Informe a descrição do chamado:\n";
-            $descricao = readline();
-            if(empty($descricao)){
+            $descricao = readline("Informe a descrição do chamado: \n");
+            if (empty($descricao)) {
                 $descricao = $chamado['descricao'];
             }
 
-            echo "Informe a data de abertura do chamado (dd/mm/aaaa):\n";
-            $data_abertura = readline();
-            if(empty($data_abertura)){
+            $data_abertura = readline("Informe a data de abertura do chamado (dd/mm/aaaa): \n");
+            if (empty($data_abertura)) {
                 $data_abertura = $chamado['data_abertura'];
             }
 
-            echo "Selecione um dos equipamentos abaixo:\n";
+            echo "Selecione um dos equipamentos abaixo: \n";
             ListarEquipamentos();
-            echo "Informe o ID do equipamento:\n";
-            $idEquipamento = readline();
-            if(empty($idEquipamento)){
+            $idEquipamento = readline("Informe o ID do equipamento: \n");
+            if (empty($idEquipamento)) {
                 $idEquipamento = $chamado['idEquipamentos'];
             }
 
@@ -125,7 +128,7 @@ function EditarChamado()
                 echo "\e[91m Equipamento não encontrado!\033[0m\n";
                 echo "----------------------------------------\n";
             }
-        }else{
+        } else {
             echo "----------------------------------------\n";
             echo "\e[91m Chamado não encontrado!\033[0m\n";
             echo "----------------------------------------\n";
@@ -137,16 +140,16 @@ function EditarChamado()
 function ExcluirChamado()
 {
     global $db;
-    $status = ListarChamados();
-    if ($status) {
+    ListarChamados($statusLista);
+    if ($statusLista) {
         echo "-- Exclusão de Chamado -- \n";
-        echo "Informe o ID do chamado que deseja excluir:\n";
-        do{
-            $id = readline();
-            if(!is_numeric($id)){
+
+        do {
+            $id = readline("Informe o ID do chamado que deseja excluir: \n");
+            if (!is_numeric($id)) {
                 echo "\e[91m O ID precisa ser númerico!\033[0m\n";
             }
-        }while(!is_numeric($id));
+        } while (!is_numeric($id));
 
         $chamado = $db->query("SELECT * FROM Chamados WHERE idChamados = $id")->fetch(PDO::FETCH_ASSOC);
         if ($chamado) {
