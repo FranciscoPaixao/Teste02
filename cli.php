@@ -4,9 +4,7 @@ include 'chamados.php';
 
 $db = new PDO('sqlite:' . dirname(__FILE__) . '/sistema.db');
 MenuPrincipal();
-//ListarEquipamentos($statusLista);
-//echo "\e[91m Texto Vermelho \033[0m\n";\
-//echo "\e[92m Texto Verde \033[0m\n";
+
 function MenuPrincipal()
 {
     echo "Selecione uma opção:\n";
