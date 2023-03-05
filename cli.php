@@ -36,7 +36,6 @@ function MenuPrincipal()
 }
 function MenuEquipamentos()
 {
-    echo "\e[H\e[J";
     echo "Selecione uma opção do Gerenciador de Equipamentos:\n";
     echo "  1 - Cadastrar Equipamento\n";
     echo "  2 - Listar Equipamentos\n";
@@ -81,7 +80,6 @@ function MenuEquipamentos()
 
 function MenuChamados()
 {
-    echo "\e[H\e[J";
     echo "Selecione uma opção do Gerenciador de Chamados:\n";
     echo "  1 - Abrir Chamado\n";
     echo "  2 - Listar Chamados\n";
